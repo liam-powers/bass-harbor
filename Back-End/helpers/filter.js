@@ -1,1 +1,0 @@
-// filter.js: FIXME: May not be required if MongoDB has filtration support when making read requests.

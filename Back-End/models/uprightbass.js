@@ -23,7 +23,7 @@ const uprightBassSchema = new Schema({
         required: true
     },
     price: {
-        type: Number,
+        type: String,
         required: true
     },
     year: {
@@ -36,5 +36,5 @@ const uprightBassSchema = new Schema({
     },
 }, { timestamps: true });
 
-const UprightBass = mongoose.model('upright-bass', uprightBassSchema);
-module.exports = UprightBass;
+const UprightBass = mongoose.model('UprightBass', uprightBassSchema);
+export default UprightBass;
