@@ -39,21 +39,3 @@ export default async function addNewListings(objList) {
     //await mongoose.disconnect();
   }
 };
-
-export async function searchListings(params) {
-  console.log("Entered searchListings");
-  await mongoose.connect(DATABASE_URI);
-  try {
-    console.log("Now searching for (double) bass listings in database!");
-    const contrabassi = await UprightBass.find();
-    console.log(contrabassi);
-  }
-  catch (error) {
-    console.log('error to connect to addNewListings: ', error);
-  }
-  finally {
-    console.log("Terminating mongoose.");
-    
-    await mongoose.connection.close();
-  }
-};
