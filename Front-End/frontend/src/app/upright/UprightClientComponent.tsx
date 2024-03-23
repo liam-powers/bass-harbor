@@ -6,10 +6,10 @@ import { Input } from '@nextui-org/react';
 import PriceRangeComponent from '../components/PriceRangeComponent';
 import 'rc-slider/assets/index.css';
 import PlacesAutocomplete from '../components/GoogleMapsSearch';
+import UprightListingsGrid from './UprightListingsGrid';
 
 
 const renderKeywords = (keywords: String[], removeKeyword: (keyword: String) => void) => {
-
     return (
         <div className="flex gap-2 flex-wrap" style={{ maxWidth: '300px' }}>
             {keywords.map((keyword) => (
@@ -100,9 +100,7 @@ const UprightClientComponent = () => {
 
             <div>
                 <div className="text-3xl font-bold pb-6">your matches:</div>
-                <div>
-                    {/* Display filtered results */}
-                </div>
+                <UprightListingsGrid filters={filters}/>
             </div>
         </div>
     );
