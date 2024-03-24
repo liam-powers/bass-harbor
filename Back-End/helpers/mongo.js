@@ -6,8 +6,17 @@ import mongoose from 'mongoose';
 import express from 'express';
 import UprightBass from '../models/uprightbass.js'
 
-const app = express();
 const DATABASE_URI = "mongodb+srv://liampowers2026:6Ff7ExPhGgfH9KRsysXNd4GU4pHoPQPS@music-sales-webscraper.dbvrd1i.mongodb.net/?retryWrites=true&w=majority"
+
+
+export async function deleteAllListings() {
+  mongoose.connect(DATABASE_URI);
+  await UprightBass.deleteMany();
+
+  mongoose.connection.close();
+  console.log("Complete!");
+}
+
 
 async function createDocument(obj) {
   //TODO: Check if upright bass or bass guitar.
@@ -27,9 +36,12 @@ async function createDocument(obj) {
 
 export default async function addNewListings(objList) {
   await mongoose.connect(DATABASE_URI);
+  console.log("objList: ", objList);
   try {
     console.log("Now adding bass listings to database!");
-    objList.forEach((obj) => createDocument(obj));
+    for (const obj of objList) {
+      await createDocument(obj);
+    }
   }
   catch (error) {
     console.log('error to connect to db in addNewListings: ', error);

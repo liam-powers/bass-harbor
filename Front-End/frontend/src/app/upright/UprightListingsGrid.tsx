@@ -5,10 +5,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export interface UprightListingsGridProps {
-    filters: UprightBassFilters;
-}
-
 interface UprightBassListing {
     title?: string;
     imgLink: string;
@@ -20,24 +16,13 @@ interface UprightBassListing {
     maker?: string;
 }
 
-export default function UprightListingsGrid(props: UprightListingsGridProps) {
-    const { filters } = props;
-    const axiosInstance = axios.create({ baseURL: 'http://localhost:4000/', timeout: 1000});
-    const [listings, setListings] = useState<UprightBassListing[]>([]);
+export interface UprightListingsProps {
+    listings: UprightBassListing[];
+}
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axiosInstance.get('api/items', { params: filters });
-                setListings(response.data);
-            } catch (error) {
-                console.error('Error fetching listings:', error);
-            }
-        };
 
-        fetchData();
 
-    }, [filters]);
+const UprightListingsGrid: React.FC<UprightListingsProps> = ({ listings }) => {
 
     return (
         <div className="grid grid-cols-4 gap-10">
@@ -53,3 +38,5 @@ export default function UprightListingsGrid(props: UprightListingsGridProps) {
         </div>
     )
 };
+
+export default UprightListingsGrid;

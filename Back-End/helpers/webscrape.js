@@ -54,9 +54,11 @@ const scrapeTalkBassData = async () => {
 };
 
 const cleanPriceHelper = (price) => {
-  //console.log("Old price (preregex): ", price);
   price = price.replace(/\$/g, '').replace(/\.\d+/, '').replace(/\./, '').replace(/k/g, '000');
-  //console.log("New price (cleaned/regexed): ", price);
+  price = parseInt(price);
+  if (isNaN(price)) {
+    price = 0;
+  }
   return price;
 };
 

@@ -1,6 +1,6 @@
 export interface CommonFilters {
     usedNew?: String;
-    costBetween?: Number[];
+    priceRange?: Number[];
     location?: String;
     yearsBetween?: Number[];
     keywords?: String[];

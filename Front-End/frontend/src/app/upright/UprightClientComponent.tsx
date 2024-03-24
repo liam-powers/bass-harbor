@@ -3,11 +3,22 @@ import { useState, useEffect } from 'react';
 import { UprightBassFilters } from '../components/FilterInterfaces';
 import UprightFilterButton from './UprightFilterButton';
 import { Input } from '@nextui-org/react';
-import PriceRangeComponent from '../components/PriceRangeComponent';
+import PriceRangeComponent from './PriceRangeComponent';
 import 'rc-slider/assets/index.css';
 import PlacesAutocomplete from '../components/GoogleMapsSearch';
 import UprightListingsGrid from './UprightListingsGrid';
+import axios from 'axios';
 
+interface UprightBassListing {
+    title?: string;
+    imgLink: string;
+    listingLink?: string;
+    location?: string;
+    saleStatus?: string;
+    price?: string;
+    year?: number;
+    maker?: string;
+}
 
 const renderKeywords = (keywords: String[], removeKeyword: (keyword: String) => void) => {
     return (
@@ -27,6 +38,30 @@ const UprightClientComponent = () => {
         hybrid: false,
         plywood: false,
     });
+
+    const [listings, setListings] = useState<UprightBassListing[]>([]);
+
+    useEffect(() => {
+        const fetchListings = async () => {
+            try {
+                const response = await axios.get(`http://localhost:4000/api/items`, { params: filters });
+                setListings(response.data);
+            } catch (error) {
+                console.error('Error fetching listings:', error);
+            }
+        }
+
+        fetchListings();
+    }, [filters]);
+
+    const toggleFilter = (filterToToggle: keyof UprightBassFilters) => {
+        const updatedFilters = {
+            ...filters,
+            [filterToToggle]: !filters[filterToToggle]
+        };
+        setFilters(updatedFilters);
+        console.log("Successfully updated filters to: ", updatedFilters);
+    };
 
     const removeKeyword = (keyword: String) => {
         const updatedFilters = {
@@ -57,50 +92,52 @@ const UprightClientComponent = () => {
 
     return (
         <div className="flex flex-row align-top gap-40">
-            <div className="">
-                <div className="text-3xl font-bold pb-6">filters:</div>
-                <div className="flex flex-col gap-10">
-                    <div>
-                        <div className="text-2xl font-bold pb-2">wood type:</div>
-                        <div className="flex flex-row flex-wrap gap-2">
+            <div className="w-full h-40 sticky top-40">
+                <div className="flex flex-col justify-center items-center">
+                    <div className="text-3xl font-bold pb-6">filters:</div>
+                    <div className="flex flex-col gap-10">
+                        <div>
+                            <div className="text-2xl font-bold pb-2">wood type:</div>
+                            <div className="flex flex-row flex-wrap gap-2">
 
-                            <UprightFilterButton filterToToggle="carved" filters={filters} setFilters={setFilters}>
-                                carved
-                            </UprightFilterButton>
-                            <UprightFilterButton filterToToggle="hybrid" filters={filters} setFilters={setFilters}>
-                                hybrid
-                            </UprightFilterButton>
-                            <UprightFilterButton filterToToggle="plywood" filters={filters} setFilters={setFilters}>
-                                plywood
-                            </UprightFilterButton>
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold pb-2">keywords:</div>
-                            <div className="flex flex-row items-center gap-6 text-2xl font-bold">
-                                <Input className="" placeholder="enter keyword here" label="keyword" onChange={(e) => setKeyword(e.target.value)} value={keyword} />
-                                <button onClick={() => handleKeywordAdd(keyword)}>+</button>
+                                <UprightFilterButton filterToToggle="carved" filters={filters} toggleFilter={toggleFilter}>
+                                    carved
+                                </UprightFilterButton>
+                                <UprightFilterButton filterToToggle="hybrid" filters={filters} toggleFilter={toggleFilter}>
+                                    hybrid
+                                </UprightFilterButton>
+                                <UprightFilterButton filterToToggle="plywood" filters={filters} toggleFilter={toggleFilter}>
+                                    plywood
+                                </UprightFilterButton>
                             </div>
-                            {renderKeywords(filters.keywords ?? [], removeKeyword)}
-
                         </div>
-                    </div>
-                    <div>
-                        <div className="text-2xl font-bold pb-2">price range:</div>
-                        <PriceRangeComponent />
-                    </div>
-                    <div>
-                        <PlacesAutocomplete />
-                    </div>
+                        <div>
+                            <div>
+                            </div>
+                            <div>
+                                <div className="text-2xl font-bold pb-2">keywords:</div>
+                                <div className="flex flex-row items-center gap-6 text-2xl font-bold">
+                                    <Input className="" placeholder="enter keyword here" label="keyword" onChange={(e) => setKeyword(e.target.value)} value={keyword} />
+                                    <button onClick={() => handleKeywordAdd(keyword)}>+</button>
+                                </div>
+                                {renderKeywords(filters.keywords ?? [], removeKeyword)}
+
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-2xl font-bold pb-2">price range:</div>
+                            <PriceRangeComponent filters={filters} setFilters={setFilters} />
+                        </div>
+                        <div>
+                            {/* <PlacesAutocomplete /> */}
+                        </div>
+                    </div>  
                 </div>
             </div>
 
-            <div>
+            <div className="min-w-[60rem] max-w-[60rem] pb-20">
                 <div className="text-3xl font-bold pb-6">your matches:</div>
-                <UprightListingsGrid filters={filters}/>
+                <UprightListingsGrid listings={listings} />
             </div>
         </div>
     );

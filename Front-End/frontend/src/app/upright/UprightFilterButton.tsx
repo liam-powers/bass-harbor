@@ -1,40 +1,19 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import { UprightBassFilters } from '../components/FilterInterfaces';
 
 interface FilterButtonProps {
     filterToToggle: keyof UprightBassFilters;
     filters: UprightBassFilters;
-    setFilters: React.Dispatch<React.SetStateAction<UprightBassFilters>>;
+    toggleFilter: (filterToToggle: keyof UprightBassFilters) => void;
     children: React.ReactNode;
 }
 
-const backendPort = 4000;
-
-function toggleFilter<T extends UprightBassFilters>(filters: T, filterToToggle: keyof T): T {
-    return {
-        ...filters,
-        [filterToToggle]: !filters[filterToToggle]
-    };
-}
-
-const UprightFilterButton: React.FC<FilterButtonProps> = ({ filterToToggle, filters, setFilters, children }) => {
+const UprightFilterButton: React.FC<FilterButtonProps> = ({ filterToToggle, filters, toggleFilter, children }) => {
     const [buttonBgColor, setButtonBgColor] = useState("bg-blue-300");
     
     const clickHandle = () => {
-        const updatedFilters = toggleFilter(filters, filterToToggle);
-        setFilters(updatedFilters);
-
-        axios
-            .get(`http://localhost:${backendPort}/api/items`, { params: updatedFilters })
-            .then((response) => {
-                console.log(response.data);
-            })
-            .catch((error) => {
-                console.error('Error fetching data: ', error);
-            });
-
-        console.log("Successfully updated filters to: ", updatedFilters);
+        toggleFilter(filterToToggle);
     };
 
     useEffect(() => {
