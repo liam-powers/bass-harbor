@@ -3,7 +3,6 @@
 // mongo pw: 6Ff7ExPhGgfH9KRsysXNd4GU4pHoPQPS
 // https://mongoosejs.com/docs/
 import mongoose from 'mongoose';
-import express from 'express';
 import UprightBass from '../models/uprightbass.js'
 
 const DATABASE_URI = "mongodb+srv://liampowers2026:6Ff7ExPhGgfH9KRsysXNd4GU4pHoPQPS@music-sales-webscraper.dbvrd1i.mongodb.net/?retryWrites=true&w=majority"

@@ -3,6 +3,7 @@ import React from 'react';
 import 'rc-slider/assets/index.css';
 import Slider from 'rc-slider';
 import { UprightBassFilters } from '../components/FilterInterfaces';
+import mongoose from 'mongoose';
 
 interface PriceRangeComponentProps {
     filters: UprightBassFilters;
@@ -14,10 +15,16 @@ const PriceRangeComponent: React.FC<PriceRangeComponentProps> = ({ filters, setF
 
     const handleChange = (newPriceRange: number[]) => {
         setPriceRange(newPriceRange);
-        const updatedFilters = { ...filters, priceRange: priceRange };
+        const updatedFilters = { ...filters, priceRange: newPriceRange };
         setFilters(updatedFilters);
         console.log(updatedFilters);
     };
+
+    /*
+    mongoose.connect("mongodb+srv://liampowers2026:6Ff7ExPhGgfH9KRsysXNd4GU4pHoPQPS@music-sales-webscraper.dbvrd1i.mongodb.net/?retryWrites=true&w=majority")
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
+    */
 
     return (
         <div>
@@ -28,6 +35,7 @@ const PriceRangeComponent: React.FC<PriceRangeComponentProps> = ({ filters, setF
                     marks={{ 0: "$0", 100000: "$100,000+" }}
                     value={priceRange}
                     onChange={(newPriceRange: number | number[]) => handleChange(newPriceRange as number[])}
+                    onChangeComplete={(newPriceRange: number | number[]) => setTimeout(handleChange, 1500, (newPriceRange as number[]))}
                     allowCross={false}
                     step={50} />
             </div>

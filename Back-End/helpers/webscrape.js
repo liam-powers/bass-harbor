@@ -7,9 +7,8 @@ let browser = await puppeteer.launch(
   });
 
 let objList = [];
-const makersList = [];
 
-export default async function scrapeData (toScrape) {  
+export default async function scrapeData(toScrape) {
   if (toScrape.talkBass === true) { // scrape TalkBass data
     await scrapeTalkBassData();
   }
@@ -17,35 +16,51 @@ export default async function scrapeData (toScrape) {
   await browser.close();
   console.log("browser closed");
   return objList;
-}
+};
 
 const scrapeTalkBassData = async () => {
   const page = await browser.newPage();
+  //TODO: Get higher quality pictures
+
   await page.goto('https://www.talkbass.com/forums/for-sale-double-basses.144/?prefix_id=1');
+  let numPages = await page.$eval("#content > div > div > div.mainContainer > div > div:nth-child(6) > div.PageNav > nav > a:nth-child(5)", el => el.textContent)
+  numPages = parseInt(numPages);
+  console.log("number of pages obtained to be: ", numPages);
 
-  //TODO: Click through all pages
-  // await page.click('#content > div > div > div.mainContainer > div > div:nth-child(6) > div.PageNav > nav > a.text'); 
-  //TODO: Click "For Sale" button
+  for (let i = 1; i <= numPages; i++) {
+    await page.goto(`https://www.talkbass.com/forums/for-sale-double-basses.144/page-${i}?prefix_id=1`);
+    const bassListings = await page.$$(`.discussionListItems .discussionListItem.visible.prefix1`);
 
-  const bassListings = await page.$$('.discussionListItems .discussionListItem.visible.prefix1');
+    console.log(`num bass listings found in page ${i} = ${bassListings.length}`);
 
-  console.log('num bass listings found =', bassListings.length);
+    for (let thread of bassListings) {
+      let obj = {}
 
-  for (const thread of bassListings) {
-    let obj = {}
+      obj.title = await thread.$eval('.PreviewTooltip', el => el.textContent);
+      const imgRef = await thread.$eval('div.listBlock.posterAvatar > span > a > img', el => el.style.getPropertyValue('background-image'))
+      obj.imgLink = 'https://www.talkbass.com/' + imgRef.slice(5, (imgRef.length - 2));
+      obj.listingLink = await thread.$eval('div.listBlock.posterAvatar > span > a', el => el.href);
 
-    obj.title = await thread.$eval('.PreviewTooltip', el => el.textContent);
-    const imgRef = await thread.$eval('div.listBlock.posterAvatar > span > a > img', el => el.style.getPropertyValue('background-image'))
-    obj.imgLink = 'https://www.talkbass.com/' + imgRef.slice(5, (imgRef.length - 2));
-    obj.listingLink = await thread.$eval('div.listBlock.posterAvatar > span > a', el => el.href);
-    obj.location = await thread.$eval('div > div > div.pairsInline > dl:nth-child(3) > dd', el => el.innerText);
-    obj.saleStatus = await thread.$eval('div > h3 > a.prefixLink > span', el => el.innerText);
-    var price = await thread.$eval('div > div > div.pairsInline > dl:nth-child(1) > dd > big > span', el => el.innerText);
-    price = cleanPriceHelper(price);
-    obj.price = price;
-    obj.year = searchTextForYearHelper(obj.title);
+      try {
+        obj.location = await thread.$eval('div > div > div.pairsInline > dl:nth-child(3) > dd', el => el.innerText)
+      }
+      catch (error) {
+        obj.location = "location not found";
+      }
 
-    objList.push(obj)
+      obj.saleStatus = await thread.$eval('div > h3 > a.prefixLink > span', el => el.innerText);
+
+      try {
+        let price = await thread.$eval('div > div > div.pairsInline > dl:nth-child(1) > dd > big > span', el => el.innerText);
+        obj.price = cleanPriceHelper(price);
+      }
+      catch (error) {
+        obj.price = 0;
+      }
+
+      obj.year = searchTextForYearHelper(obj.title);
+      objList.push(obj)
+    }
   }
 
   console.log("\n\n\n ***** Reached end of scrapeTalkBassData function *****");
@@ -68,7 +83,7 @@ const searchTextForYearHelper = (text) => {
 
   if (matches) {
     matches.forEach(function (num) {
-      if ((num > 1500) && (num <= 2023)) { // TODO: fetch current year from host here
+      if ((num > 1500) && (num <= 2025)) { // TODO: fetch current year from host here
         //console.log("Year detected!", num)
         return num;
       }
@@ -77,4 +92,4 @@ const searchTextForYearHelper = (text) => {
 
   //console.log("Year not found");
   return 0;
-}
+};
